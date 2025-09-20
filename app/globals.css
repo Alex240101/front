@@ -1,0 +1,183 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  /* WhatsApp Light Theme Colors */
+  --background: #f0f2f5;
+  --foreground: #111b21;
+  --card: #ffffff;
+  --card-foreground: #111b21;
+  --popover: #ffffff;
+  --popover-foreground: #111b21;
+  --primary: #00a884;
+  --primary-foreground: #ffffff;
+  --secondary: #f0f2f5;
+  --secondary-foreground: #667781;
+  --muted: #f0f2f5;
+  --muted-foreground: #667781;
+  --accent: #00a884;
+  --accent-foreground: #ffffff;
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --border: #e9edef;
+  --input: #ffffff;
+  --ring: rgba(0, 168, 132, 0.2);
+  --whatsapp-green: #00a884;
+  --whatsapp-green-dark: #008069;
+  --whatsapp-teal: #25d366;
+  --whatsapp-blue: #53bdeb;
+  --whatsapp-gray: #8696a0;
+  --whatsapp-light-gray: #f0f2f5;
+  --radius: 0.5rem;
+}
+
+.dark {
+  /* WhatsApp Dark Theme Colors */
+  --background: #0b141a;
+  --foreground: #e9edef;
+  --card: #202c33;
+  --card-foreground: #e9edef;
+  --popover: #202c33;
+  --popover-foreground: #e9edef;
+  --primary: #00a884;
+  --primary-foreground: #ffffff;
+  --secondary: #2a3942;
+  --secondary-foreground: #aebac1;
+  --muted: #2a3942;
+  --muted-foreground: #8696a0;
+  --accent: #00a884;
+  --accent-foreground: #ffffff;
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --border: #2a3942;
+  --input: #2a3942;
+  --ring: rgba(0, 168, 132, 0.2);
+  --whatsapp-green: #00a884;
+  --whatsapp-green-dark: #008069;
+  --whatsapp-teal: #25d366;
+  --whatsapp-blue: #53bdeb;
+  --whatsapp-gray: #8696a0;
+  --whatsapp-light-gray: #2a3942;
+}
+
+/* Fixed font configuration for Tailwind CSS v4 */
+@theme inline {
+  --font-space-grotesk: var(--font-space-grotesk);
+  --font-dm-sans: var(--font-dm-sans);
+  --font-sans: var(--font-dm-sans);
+  --font-serif: var(--font-space-grotesk);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  /* Fixed body font class to use font-sans instead of font-dm-sans */
+  body {
+    @apply bg-background text-foreground font-sans;
+    font-smoothing: antialiased;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* WhatsApp-style scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--background);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--whatsapp-gray);
+    border-radius: 3px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--whatsapp-green);
+  }
+}
+
+@layer components {
+  /* WhatsApp-style animations */
+  .whatsapp-fade-in {
+    animation: whatsappFadeIn 0.3s ease-out;
+  }
+
+  @keyframes whatsappFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .whatsapp-slide-in {
+    animation: whatsappSlideIn 0.2s ease-out;
+  }
+
+  @keyframes whatsappSlideIn {
+    from {
+      opacity: 0;
+      transform: translateX(-10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  /* WhatsApp-style message bubbles */
+  .message-bubble-sent {
+    @apply bg-whatsapp-green text-white rounded-lg px-3 py-2 max-w-xs ml-auto;
+    border-bottom-right-radius: 4px;
+  }
+
+  .message-bubble-received {
+    @apply bg-card text-foreground rounded-lg px-3 py-2 max-w-xs mr-auto;
+    border-bottom-left-radius: 4px;
+  }
+
+  /* WhatsApp-style buttons */
+  .whatsapp-btn-primary {
+    @apply bg-whatsapp-green hover:bg-whatsapp-green-dark text-white font-medium px-4 py-2 rounded-lg transition-colors duration-200;
+  }
+
+  .whatsapp-btn-secondary {
+    @apply bg-transparent hover:bg-whatsapp-light-gray text-whatsapp-green border border-whatsapp-green font-medium px-4 py-2 rounded-lg transition-colors duration-200;
+  }
+
+  /* Custom utility classes */
+  .bg-whatsapp-green {
+    background-color: var(--whatsapp-green);
+  }
+
+  .bg-whatsapp-green-dark {
+    background-color: var(--whatsapp-green-dark);
+  }
+
+  .bg-whatsapp-teal {
+    background-color: var(--whatsapp-teal);
+  }
+
+  .bg-whatsapp-light-gray {
+    background-color: var(--whatsapp-light-gray);
+  }
+
+  .text-whatsapp-green {
+    color: var(--whatsapp-green);
+  }
+
+  .text-whatsapp-gray {
+    color: var(--whatsapp-gray);
+  }
+
+  .border-whatsapp-green {
+    border-color: var(--whatsapp-green);
+  }
+}

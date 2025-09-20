@@ -1,0 +1,117 @@
+{
+  "name": "WhatsApp Reminders Pro",
+  "short_name": "WA Reminders",
+  "description": "Sistema profesional de recordatorios por WhatsApp para Perú",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#00a884",
+  "theme_color": "#00a884",
+  "orientation": "portrait-primary",
+  "categories": ["business", "productivity", "communication"],
+  "lang": "es",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "/icons/icon-72x72.jpg",
+      "sizes": "72x72",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-96x96.jpg",
+      "sizes": "96x96",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-128x128.jpg",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-144x144.jpg",
+      "sizes": "144x144",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-152x152.jpg",
+      "sizes": "152x152",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-192x192.jpg",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-384x384.jpg",
+      "sizes": "384x384",
+      "type": "image/png",
+      "purpose": "maskable any"
+    },
+    {
+      "src": "/icons/icon-512x512.jpg",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Enviar Mensajes",
+      "short_name": "Mensajes",
+      "description": "Enviar recordatorios a clientes",
+      "url": "/messages",
+      "icons": [
+        {
+          "src": "/icons/icon-96x96.jpg",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Ver Clientes",
+      "short_name": "Clientes",
+      "description": "Gestionar lista de clientes",
+      "url": "/clients",
+      "icons": [
+        {
+          "src": "/icons/icon-96x96.jpg",
+          "sizes": "96x96"
+        }
+      ]
+    },
+    {
+      "name": "Dashboard",
+      "short_name": "Inicio",
+      "description": "Panel principal",
+      "url": "/dashboard",
+      "icons": [
+        {
+          "src": "/icons/icon-96x96.jpg",
+          "sizes": "96x96"
+        }
+      ]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshots/desktop-1.png",
+      "sizes": "1280x720",
+      "type": "image/png",
+      "form_factor": "wide",
+      "label": "Dashboard principal"
+    },
+    {
+      "src": "/screenshots/mobile-1.png",
+      "sizes": "375x667",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Vista móvil"
+    }
+  ]
+}
