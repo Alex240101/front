@@ -1,19 +1,19 @@
-const express = require("express")
-const { Server } = require("socket.io")
-const { Client, LocalAuth } = require("whatsapp-web.js")
-const http = require("http")
-const cors = require("cors")
-const QRCode = require("qrcode")
+const express = require("express");
+const { Server } = require("socket.io");
+const { Client, LocalAuth } = require("whatsapp-web.js");
+const http = require("http");
+const cors = require("cors");
+const QRCode = require("qrcode");
 
 // ===============================
 // CONFIGURACIÓN DEL SERVIDOR
 // ===============================
-console.log("🚀 Iniciando servidor WhatsApp Reminder System...")
+console.log("🚀 Iniciando servidor WhatsApp Reminder System...");
 
-const app = express()
-const server = http.createServer(app)
+const app = express();
+const server = http.createServer(app);
 
-const PORT = process.env.PORT || 3000
+const PORT = process.env.PORT || 3000;
 
 // ===============================
 // MIDDLEWARES
@@ -21,18 +21,23 @@ const PORT = process.env.PORT || 3000
 const allowedOrigins = [
   "http://localhost:3001",
   "http://127.0.0.1:3001",
-  "https://whatsapp-reminders.vercel.app", // tu front en Vercel
-  "https://*.vercel.app", // subdominios Vercel
-]
+  "https://whatsapp-reminders.vercel.app",
+];
 
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.some((o) => origin.startsWith(o))) {
+        return callback(null, true);
+      }
+      callback(new Error("CORS no permitido"));
+    },
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     credentials: true,
   })
-)
-app.use(express.json())
+);
+
+app.use(express.json());
 
 // ===============================
 // SOCKET.IO CONFIG
@@ -43,24 +48,24 @@ const io = new Server(server, {
     methods: ["GET", "POST"],
     credentials: true,
   },
-})
+});
 
 // ===============================
 // VARIABLES GLOBALES
 // ===============================
-let whatsappClient = null
-let isClientReady = false
-let isInitializing = false
-const clients = []
+let whatsappClient = null;
+let isClientReady = false;
+let isInitializing = false;
+const clients = [];
 
 // ===============================
 // FUNCIONES
 // ===============================
 function initializeWhatsAppClient() {
-  if (isInitializing || whatsappClient) return
+  if (isInitializing || whatsappClient) return;
 
-  isInitializing = true
-  console.log("📱 Inicializando cliente de WhatsApp...")
+  isInitializing = true;
+  console.log("📱 Inicializando cliente de WhatsApp...");
 
   whatsappClient = new Client({
     authStrategy: new LocalAuth({
@@ -81,9 +86,8 @@ function initializeWhatsAppClient() {
         "--disable-features=VizDisplayCompositor",
       ],
     },
-  })
+  });
 
-  // QR CODE
   whatsappClient.on("qr", async (qr) => {
     try {
       const qrImageUrl = await QRCode.toDataURL(qr, {
@@ -91,145 +95,169 @@ function initializeWhatsAppClient() {
         margin: 0,
         color: { dark: "#000000", light: "#FFFFFF" },
         errorCorrectionLevel: "L",
-      })
-      io.emit("qr", qrImageUrl)
-      console.log("✅ QR enviado al frontend")
+      });
+      io.emit("qr", qrImageUrl);
+      console.log("✅ QR enviado al frontend");
     } catch (error) {
-      console.error("❌ Error generando imagen QR:", error)
+      console.error("❌ Error generando imagen QR:", error);
     }
-  })
+  });
 
-  // READY
   whatsappClient.on("ready", () => {
-    console.log("✅ ¡Cliente de WhatsApp conectado y listo!")
-    isClientReady = true
-    isInitializing = false
-    io.emit("ready", { message: "WhatsApp conectado exitosamente" })
-  })
+    console.log("✅ ¡Cliente de WhatsApp conectado y listo!");
+    isClientReady = true;
+    isInitializing = false;
+    io.emit("ready", { message: "WhatsApp conectado exitosamente" });
+  });
 
-  // AUTHENTICATED
   whatsappClient.on("authenticated", () => {
-    console.log("🔐 Cliente autenticado correctamente")
-    isInitializing = false
-    io.emit("authenticated", { message: "Autenticación exitosa" })
-  })
+    console.log("🔐 Cliente autenticado correctamente");
+    isInitializing = false;
+    io.emit("authenticated", { message: "Autenticación exitosa" });
+  });
 
-  // AUTH FAILURE
   whatsappClient.on("auth_failure", (msg) => {
-    console.error("❌ Error de autenticación:", msg)
-    isInitializing = false
-    io.emit("auth_failure", { error: msg })
-  })
+    console.error("❌ Error de autenticación:", msg);
+    isInitializing = false;
+    io.emit("auth_failure", { error: msg });
+  });
 
-  // DISCONNECTED
   whatsappClient.on("disconnected", (reason) => {
-    console.log("🔌 Cliente desconectado:", reason)
-    isClientReady = false
-    isInitializing = false
-    io.emit("logout", { reason })
-  })
+    console.log("🔌 Cliente desconectado:", reason);
+    isClientReady = false;
+    isInitializing = false;
+    whatsappClient = null;
+    io.emit("logout", { reason });
+    // Reinicializar cliente automáticamente
+    setTimeout(() => initializeWhatsAppClient(), 3000);
+  });
 
-  whatsappClient.initialize()
+  whatsappClient.initialize();
 }
 
 // ===============================
 // SOCKET.IO CONNECTION
 // ===============================
 io.on("connection", (socket) => {
-  console.log("🔗 Cliente frontend conectado:", socket.id)
+  console.log("🔗 Cliente frontend conectado:", socket.id);
 
   if (!whatsappClient && !isInitializing) {
-    console.log("🔄 Inicializando WhatsApp para nuevo cliente...")
-    initializeWhatsAppClient()
+    console.log("🔄 Inicializando WhatsApp para nuevo cliente...");
+    initializeWhatsAppClient();
   }
 
   socket.emit("client_status", {
     isReady: isClientReady,
     clientsCount: clients.length,
-  })
+  });
 
   socket.on("disconnect", () => {
-    console.log("🔌 Cliente frontend desconectado:", socket.id)
-  })
-})
+    console.log("🔌 Cliente frontend desconectado:", socket.id);
+  });
+});
 
 // ===============================
 // ENDPOINTS API
 // ===============================
-
-// POST /api/client - Agregar cliente
 app.post("/api/client", (req, res) => {
-  const { name, phone, email } = req.body
-  if (!name || !phone) return res.status(400).json({ success: false, error: "Nombre y teléfono son requeridos" })
+  const { name, phone, email } = req.body;
+  if (!name || !phone)
+    return res
+      .status(400)
+      .json({ success: false, error: "Nombre y teléfono son requeridos" });
 
-  const existingClient = clients.find((c) => c.phone === phone)
-  if (existingClient) return res.status(409).json({ success: false, error: "Cliente ya existe con este número" })
+  const existingClient = clients.find((c) => c.phone === phone);
+  if (existingClient)
+    return res
+      .status(409)
+      .json({ success: false, error: "Cliente ya existe con este número" });
 
-  const newClient = { id: Date.now().toString(), name, phone, email: email || null, createdAt: new Date().toISOString() }
-  clients.push(newClient)
-  io.emit("client_added", newClient)
-  console.log("👤 Cliente agregado:", name, "-", phone)
+  const newClient = {
+    id: Date.now().toString(),
+    name,
+    phone,
+    email: email || null,
+    createdAt: new Date().toISOString(),
+  };
+  clients.push(newClient);
+  io.emit("client_added", newClient);
+  console.log("👤 Cliente agregado:", name, "-", phone);
 
-  res.status(201).json({ success: true, message: "Cliente agregado exitosamente", client: newClient })
-})
+  res
+    .status(201)
+    .json({ success: true, message: "Cliente agregado exitosamente", client: newClient });
+});
 
-// GET /api/clients - Obtener clientes
 app.get("/api/clients", (req, res) => {
-  res.status(200).json({ success: true, clients, total: clients.length })
-})
+  res.status(200).json({ success: true, clients, total: clients.length });
+});
 
-// POST /api/send - Enviar mensaje
 app.post("/api/send", async (req, res) => {
-  const { phone, message } = req.body
-  if (!phone || !message) return res.status(400).json({ success: false, error: "Teléfono y mensaje son requeridos" })
+  const { phone, message } = req.body;
+  if (!phone || !message)
+    return res
+      .status(400)
+      .json({ success: false, error: "Teléfono y mensaje son requeridos" });
 
-  if (!isClientReady || !whatsappClient) return res.status(503).json({ success: false, error: "Cliente de WhatsApp no está conectado" })
+  if (!isClientReady || !whatsappClient)
+    return res
+      .status(503)
+      .json({ success: false, error: "Cliente de WhatsApp no está conectado" });
 
-  let formattedPhone = phone.replace(/\D/g, "")
-  if (!formattedPhone.includes("@c.us")) formattedPhone += "@c.us"
+  let formattedPhone = phone.replace(/\D/g, "");
+  if (!formattedPhone.endsWith("@c.us")) formattedPhone += "@c.us";
 
   try {
-    const sentMessage = await whatsappClient.sendMessage(formattedPhone, message)
-    io.emit("message_sent", { phone, message, timestamp: new Date().toISOString() })
-    res.status(200).json({ success: true, message: "Mensaje enviado exitosamente", messageId: sentMessage.id._serialized })
+    const sentMessage = await whatsappClient.sendMessage(formattedPhone, message);
+    io.emit("message_sent", { phone, message, timestamp: new Date().toISOString() });
+    res.status(200).json({
+      success: true,
+      message: "Mensaje enviado exitosamente",
+      messageId: sentMessage.id._serialized,
+    });
   } catch (error) {
-    console.error("❌ Error al enviar mensaje:", error)
-    res.status(500).json({ success: false, error: "Error al enviar mensaje: " + error.message })
+    console.error("❌ Error al enviar mensaje:", error);
+    res
+      .status(500)
+      .json({ success: false, error: "Error al enviar mensaje: " + error.message });
   }
-})
+});
 
-// POST /api/logout - Cerrar sesión
 app.post("/api/logout", async (req, res) => {
   try {
-    if (!whatsappClient) return res.status(400).json({ success: false, error: "No hay sesión activa" })
+    if (!whatsappClient)
+      return res.status(400).json({ success: false, error: "No hay sesión activa" });
 
-    await whatsappClient.logout()
-    await whatsappClient.destroy()
-    whatsappClient = null
-    isClientReady = false
-    isInitializing = false
+    await whatsappClient.logout();
+    await whatsappClient.destroy();
+    whatsappClient = null;
+    isClientReady = false;
+    isInitializing = false;
 
-    io.emit("logout", { message: "Sesión cerrada por el usuario" })
-    res.status(200).json({ success: true, message: "Sesión cerrada exitosamente" })
+    io.emit("logout", { message: "Sesión cerrada por el usuario" });
+    res.status(200).json({ success: true, message: "Sesión cerrada exitosamente" });
 
-    // Reinicializar cliente
-    initializeWhatsAppClient()
+    setTimeout(() => initializeWhatsAppClient(), 3000);
   } catch (error) {
-    console.error("❌ Error al cerrar sesión:", error)
-    whatsappClient = null
-    isClientReady = false
-    isInitializing = false
-    res.status(500).json({ success: false, error: "Error al cerrar sesión: " + error.message })
-    initializeWhatsAppClient()
+    console.error("❌ Error al cerrar sesión:", error);
+    whatsappClient = null;
+    isClientReady = false;
+    isInitializing = false;
+    res.status(500).json({ success: false, error: "Error al cerrar sesión: " + error.message });
+    setTimeout(() => initializeWhatsAppClient(), 3000);
   }
-})
+});
 
-// GET /api/status - Estado del servidor
 app.get("/api/status", (req, res) => {
-  res.status(200).json({ success: true, status: "Server running", whatsappReady: isClientReady, clientsCount: clients.length, timestamp: new Date().toISOString() })
-})
+  res.status(200).json({
+    success: true,
+    status: "Server running",
+    whatsappReady: isClientReady,
+    clientsCount: clients.length,
+    timestamp: new Date().toISOString(),
+  });
+});
 
-// GET / - Root
 app.get("/", (req, res) => {
   res.json({
     message: "🚀 WhatsApp Reminder System API",
@@ -243,31 +271,34 @@ app.get("/", (req, res) => {
       "POST /api/logout": "Cerrar sesión",
       "GET /api/status": "Estado del servidor",
     },
-  })
-})
+  });
+});
 
-// GET /health - Health check
 app.get("/health", (req, res) => {
-  res.status(200).json({ status: "healthy", timestamp: new Date().toISOString(), uptime: process.uptime() })
-})
+  res
+    .status(200)
+    .json({ status: "healthy", timestamp: new Date().toISOString(), uptime: process.uptime() });
+});
 
 // ===============================
 // ERRORES GLOBALES
 // ===============================
-process.on("uncaughtException", (error) => console.error("❌ Error no capturado:", error))
-process.on("unhandledRejection", (reason) => console.error("❌ Promesa rechazada no manejada:", reason))
+process.on("uncaughtException", (error) => console.error("❌ Error no capturado:", error));
+process.on("unhandledRejection", (reason) =>
+  console.error("❌ Promesa rechazada no manejada:", reason)
+);
 
 // ===============================
 // INICIAR SERVIDOR
 // ===============================
 server.listen(PORT, () => {
-  console.log("=".repeat(50))
-  console.log("🚀 SERVIDOR WHATSAPP REMINDER INICIADO")
-  console.log("📡 Puerto:", PORT)
-  console.log("🌐 API: http://localhost:" + PORT)
-  console.log("🔌 Socket.IO: Habilitado")
-  console.log("📱 WhatsApp: Inicializando...")
-  console.log("=".repeat(50))
-})
+  console.log("=".repeat(50));
+  console.log("🚀 SERVIDOR WHATSAPP REMINDER INICIADO");
+  console.log("📡 Puerto:", PORT);
+  console.log("🌐 API: http://localhost:" + PORT);
+  console.log("🔌 Socket.IO: Habilitado");
+  console.log("📱 WhatsApp: Inicializando...");
+  console.log("=".repeat(50));
+});
 
-module.exports = { app, server, io }
+module.exports = { app, server, io };
