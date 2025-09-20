@@ -55,7 +55,7 @@ export default function ScheduledPage() {
 
   const loadClients = async () => {
     try {
-      const response = await fetch("http://localhost:3000/api/clients")
+      const response = await fetch("https://back-wsp.onrender.com/api/clients")
       const data = await response.json()
       if (data.success) {
         setClients(data.clients)

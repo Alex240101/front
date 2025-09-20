@@ -21,7 +21,7 @@ export default function DashboardLayout({
 
   const checkWhatsAppStatus = async () => {
     try {
-      const response = await fetch("http://localhost:3000/api/status")
+      const response = await fetch("https://back-wsp.onrender.com/api/status")
       const data = await response.json()
       if (data.success) {
         setWhatsappStatus(data.whatsappReady ? "Conectado" : "Desconectado")
