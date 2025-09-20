@@ -33,7 +33,7 @@ export default function SettingsPage() {
 
   const checkWhatsAppStatus = async () => {
     try {
-      const response = await fetch("http://localhost:3000/api/status")
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3000"}/api/status`)
       const data = await response.json()
       if (data.success) {
         setWhatsappStatus(data.whatsappReady ? "Conectado" : "Desconectado")

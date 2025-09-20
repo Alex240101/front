@@ -29,7 +29,7 @@ export default function LoginScreen({ onLoginSuccess }: LoginScreenProps) {
     // Crear conexión Socket.IO solo si no existe
     if (!socketRef.current) {
       console.log("[v0] Creando nueva conexión Socket.IO")
-      socketRef.current = io("http://localhost:3000", {
+      socketRef.current = io(process.env.NEXT_PUBLIC_SOCKET_URL || "http://localhost:3000", {
         forceNew: true, // Forzar nueva conexión
         reconnection: false, // Desactivar reconexión automática
         timeout: 10000,

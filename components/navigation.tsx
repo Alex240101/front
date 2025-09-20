@@ -50,7 +50,7 @@ export function Navigation({ whatsappStatus = "Desconectado", onLogout }: Naviga
       try {
         localStorage.removeItem("whatsapp-session")
 
-        const response = await fetch("http://localhost:3000/api/logout", {
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3000"}/api/logout`, {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

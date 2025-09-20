@@ -65,6 +65,7 @@ export const metadata: Metadata = {
       { url: "/icons/icon-192x192.jpg", sizes: "192x192", type: "image/png" },
     ],
   },
+    generator: 'v0.app'
 }
 
 export default function RootLayout({
