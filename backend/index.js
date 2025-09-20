@@ -12,24 +12,30 @@ console.log("🚀 Iniciando servidor WhatsApp Reminder System...");
 
 const app = express();
 const server = http.createServer(app);
-
 const PORT = process.env.PORT || 3000;
 
 // ===============================
-// MIDDLEWARES
+// MIDDLEWARES CORS FLEXIBLE
 // ===============================
 const allowedOrigins = [
   "http://localhost:3001",
   "http://127.0.0.1:3001",
-  "https://whatsapp-reminders.vercel.app",
+  "https://front-git-main-cesar10-52-hotmailcoms-projects.vercel.app",
 ];
+
+function checkOrigin(origin) {
+  if (!origin) return true; // Permite Postman u otras herramientas
+  if (allowedOrigins.includes(origin)) return true;
+  // Permite cualquier subdominio de preview de tu proyecto en Vercel
+  const vercelPattern = /^https:\/\/front-.*-cesar10-52-hotmailcoms-projects\.vercel\.app$/;
+  return vercelPattern.test(origin);
+}
 
 app.use(
   cors({
     origin: (origin, callback) => {
-      if (!origin || allowedOrigins.some((o) => origin.startsWith(o))) {
-        return callback(null, true);
-      }
+      if (checkOrigin(origin)) return callback(null, true);
+      console.log("❌ CORS rechazado:", origin);
       callback(new Error("CORS no permitido"));
     },
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
@@ -44,7 +50,11 @@ app.use(express.json());
 // ===============================
 const io = new Server(server, {
   cors: {
-    origin: allowedOrigins,
+    origin: (origin, callback) => {
+      if (checkOrigin(origin)) return callback(null, true);
+      console.log("❌ Socket.IO CORS rechazado:", origin);
+      callback(new Error("CORS no permitido"));
+    },
     methods: ["GET", "POST"],
     credentials: true,
   },
@@ -68,9 +78,7 @@ function initializeWhatsAppClient() {
   console.log("📱 Inicializando cliente de WhatsApp...");
 
   whatsappClient = new Client({
-    authStrategy: new LocalAuth({
-      clientId: "whatsapp-reminder-system",
-    }),
+    authStrategy: new LocalAuth({ clientId: "whatsapp-reminder-system" }),
     puppeteer: {
       headless: true,
       args: [
@@ -128,7 +136,6 @@ function initializeWhatsAppClient() {
     isInitializing = false;
     whatsappClient = null;
     io.emit("logout", { reason });
-    // Reinicializar cliente automáticamente
     setTimeout(() => initializeWhatsAppClient(), 3000);
   });
 
@@ -162,15 +169,11 @@ io.on("connection", (socket) => {
 app.post("/api/client", (req, res) => {
   const { name, phone, email } = req.body;
   if (!name || !phone)
-    return res
-      .status(400)
-      .json({ success: false, error: "Nombre y teléfono son requeridos" });
+    return res.status(400).json({ success: false, error: "Nombre y teléfono son requeridos" });
 
   const existingClient = clients.find((c) => c.phone === phone);
   if (existingClient)
-    return res
-      .status(409)
-      .json({ success: false, error: "Cliente ya existe con este número" });
+    return res.status(409).json({ success: false, error: "Cliente ya existe con este número" });
 
   const newClient = {
     id: Date.now().toString(),
@@ -183,9 +186,7 @@ app.post("/api/client", (req, res) => {
   io.emit("client_added", newClient);
   console.log("👤 Cliente agregado:", name, "-", phone);
 
-  res
-    .status(201)
-    .json({ success: true, message: "Cliente agregado exitosamente", client: newClient });
+  res.status(201).json({ success: true, message: "Cliente agregado exitosamente", client: newClient });
 });
 
 app.get("/api/clients", (req, res) => {
@@ -195,14 +196,10 @@ app.get("/api/clients", (req, res) => {
 app.post("/api/send", async (req, res) => {
   const { phone, message } = req.body;
   if (!phone || !message)
-    return res
-      .status(400)
-      .json({ success: false, error: "Teléfono y mensaje son requeridos" });
+    return res.status(400).json({ success: false, error: "Teléfono y mensaje son requeridos" });
 
   if (!isClientReady || !whatsappClient)
-    return res
-      .status(503)
-      .json({ success: false, error: "Cliente de WhatsApp no está conectado" });
+    return res.status(503).json({ success: false, error: "Cliente de WhatsApp no está conectado" });
 
   let formattedPhone = phone.replace(/\D/g, "");
   if (!formattedPhone.endsWith("@c.us")) formattedPhone += "@c.us";
@@ -217,16 +214,13 @@ app.post("/api/send", async (req, res) => {
     });
   } catch (error) {
     console.error("❌ Error al enviar mensaje:", error);
-    res
-      .status(500)
-      .json({ success: false, error: "Error al enviar mensaje: " + error.message });
+    res.status(500).json({ success: false, error: "Error al enviar mensaje: " + error.message });
   }
 });
 
 app.post("/api/logout", async (req, res) => {
   try {
-    if (!whatsappClient)
-      return res.status(400).json({ success: false, error: "No hay sesión activa" });
+    if (!whatsappClient) return res.status(400).json({ success: false, error: "No hay sesión activa" });
 
     await whatsappClient.logout();
     await whatsappClient.destroy();
@@ -275,18 +269,14 @@ app.get("/", (req, res) => {
 });
 
 app.get("/health", (req, res) => {
-  res
-    .status(200)
-    .json({ status: "healthy", timestamp: new Date().toISOString(), uptime: process.uptime() });
+  res.status(200).json({ status: "healthy", timestamp: new Date().toISOString(), uptime: process.uptime() });
 });
 
 // ===============================
 // ERRORES GLOBALES
 // ===============================
 process.on("uncaughtException", (error) => console.error("❌ Error no capturado:", error));
-process.on("unhandledRejection", (reason) =>
-  console.error("❌ Promesa rechazada no manejada:", reason)
-);
+process.on("unhandledRejection", (reason) => console.error("❌ Promesa rechazada no manejada:", reason));
 
 // ===============================
 // INICIAR SERVIDOR
