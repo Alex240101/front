@@ -37,7 +37,7 @@ export default function EditClientPage() {
 
   const loadClient = async () => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3000"}/api/clients`)
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL || "https://back-wsp.onrender.com"}/api/clients`)
       const data = await response.json()
       if (data.success) {
         const foundClient = data.clients.find((c: Client) => c.id === params.id)
