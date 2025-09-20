@@ -64,7 +64,7 @@ self.addEventListener("fetch", (event) => {
   if (
     event.request.url.includes("/api/") ||
     event.request.url.includes("socket.io") ||
-    event.request.url.includes("localhost:3000")
+    event.request.url.includes("https://back-wsp.onrender.com")
   ) {
     return
   }
