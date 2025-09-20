@@ -44,7 +44,7 @@ export default function Dashboard({ onLogout }: DashboardProps) {
 
   const loadClients = async () => {
     try {
-      const response = await fetch("http://localhost:3000/api/clients")
+      const response = await fetch("https://back-wsp.onrender.com/api/clients")
       const data = await response.json()
       if (data.success) {
         setClients(data.clients)
@@ -56,7 +56,7 @@ export default function Dashboard({ onLogout }: DashboardProps) {
 
   const checkWhatsAppStatus = async () => {
     try {
-      const response = await fetch("http://localhost:3000/api/status")
+      const response = await fetch("https://back-wsp.onrender.com/api/status")
       const data = await response.json()
       if (data.success) {
         setWhatsappStatus(data.whatsappReady ? "Conectado" : "Desconectado")
@@ -70,7 +70,7 @@ export default function Dashboard({ onLogout }: DashboardProps) {
     if (newClient.name && newClient.phone) {
       setIsLoading(true)
       try {
-        const response = await fetch("http://localhost:3000/api/client", {
+        const response = await fetch("https://back-wsp.onrender.com/api/client", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -144,7 +144,7 @@ export default function Dashboard({ onLogout }: DashboardProps) {
 
         for (const client of selectedClientData) {
           try {
-            const response = await fetch("http://localhost:3000/api/send", {
+            const response = await fetch("https://back-wsp.onrender.com/api/send", {
               method: "POST",
               headers: {
                 "Content-Type": "application/json",
@@ -191,7 +191,7 @@ export default function Dashboard({ onLogout }: DashboardProps) {
     if (confirm("¿Estás seguro de que quieres cerrar sesión de WhatsApp?")) {
       setIsLoading(true)
       try {
-        const response = await fetch("http://localhost:3000/api/logout", {
+        const response = await fetch("https://back-wsp.onrender.com/api/logout", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

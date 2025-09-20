@@ -78,7 +78,7 @@ export function SessionManager() {
     // Check WhatsApp status periodically
     const checkStatus = async () => {
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:3000"}/api/status`)
+        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL || "https://back-wsp.onrender.com"}/api/status`)
         const data = await response.json()
 
         if (data.success) {
