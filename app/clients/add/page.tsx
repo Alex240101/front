@@ -25,7 +25,7 @@ export default function AddClientPage() {
     if (newClient.name && newClient.phone) {
       setIsLoading(true)
       try {
-        const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL || "https://back-wsp.onrender.com"}/api/client`, {
+        const response = await fetch("https://back-wsp.onrender.com/api/client", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

@@ -28,7 +28,7 @@ export default function ClientsPage() {
   const loadClients = async () => {
     setIsLoading(true)
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL || "https://back-wsp.onrender.com"}/api/clients`)
+      const response = await fetch("https://back-wsp.onrender.com/api/clients")
       const data = await response.json()
       if (data.success) {
         setClients(data.clients)

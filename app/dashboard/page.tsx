@@ -19,13 +19,13 @@ export default function DashboardPage() {
 
   const loadStats = async () => {
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL || "https://back-wsp.onrender.com"}/api/clients`)
+      const response = await fetch("https://back-wsp.onrender.com/api/clients")
       const data = await response.json()
       if (data.success) {
         setStats((prev) => ({ ...prev, totalClients: data.clients.length }))
       }
 
-      const statusResponse = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_URL || "https://back-wsp.onrender.com"}/api/status`)
+      const statusResponse = await fetch("https://back-wsp.onrender.com/api/status")
       const statusData = await statusResponse.json()
       if (statusData.success) {
         setStats((prev) => ({

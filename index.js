@@ -11,7 +11,12 @@ const app = express()
 const server = http.createServer(app)
 const io = new Server(server, {
   cors: {
-    origin: ["http://localhost:3001", "http://127.0.0.1:3001"],
+    origin: [
+      "https://front-chi-woad.vercel.app",
+      "https://front-chi-woad.vercel.app/",
+      "http://localhost:3001",
+      "http://127.0.0.1:3001",
+    ],
     methods: ["GET", "POST"],
     credentials: true,
   },
@@ -22,7 +27,12 @@ const PORT = process.env.PORT || 3000
 // Middlewares
 app.use(
   cors({
-    origin: ["http://localhost:3001", "http://127.0.0.1:3001"],
+    origin: [
+      "https://front-chi-woad.vercel.app",
+      "https://front-chi-woad.vercel.app/",
+      "http://localhost:3001",
+      "http://127.0.0.1:3001",
+    ],
     credentials: true,
   }),
 )
@@ -73,17 +83,17 @@ function initializeWhatsAppClient() {
 
     try {
       const qrImageUrl = await QRCode.toDataURL(qr, {
-        width: 200, // Reducir tamaño para mayor velocidad
-        margin: 0, // Sin margen para generar más rápido
+        width: 150, // Reduced size for faster generation
+        margin: 0,
         color: {
           dark: "#000000",
           light: "#FFFFFF",
         },
-        errorCorrectionLevel: "L", // Menor corrección de errores = más rápido
+        errorCorrectionLevel: "L", // Fastest generation
       })
 
       io.emit("qr", qrImageUrl)
-      console.log("✅ QR enviado al frontend")
+      console.log("✅ QR enviado al frontend INMEDIATAMENTE")
     } catch (error) {
       console.error("❌ Error generando imagen QR:", error)
     }
